@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Месторождения ДЗО КМГ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Onest:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* ---- Базовые стили Leaflet (минимально необходимый набор) ---- */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:none}
+.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{user-select:none;-webkit-user-drag:none}
+.leaflet-tile::selection{background:transparent}
+.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
+.leaflet-container img.leaflet-tile{max-width:none!important;max-height:none!important;width:auto;padding:0}
+.leaflet-tile{filter:inherit;visibility:hidden}
+.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}
+.leaflet-control{position:relative;z-index:800;pointer-events:auto;float:left;clear:both}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-right .leaflet-control{float:right}
+.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}
+.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-zoom-animated{transform-origin:0 0}
+svg.leaflet-zoom-animated{will-change:transform}
+.leaflet-zoom-anim .leaflet-zoom-animated{transition:transform .25s cubic-bezier(0,0,.25,1)}
+.leaflet-zoom-anim .leaflet-tile,.leaflet-pan-anim .leaflet-tile{transition:none}
+.leaflet-zoom-anim .leaflet-zoom-hide{visibility:hidden}
+.leaflet-interactive{cursor:pointer}
+.leaflet-grab{cursor:grab}
+.leaflet-dragging .leaflet-grab,.leaflet-dragging .leaflet-grab .leaflet-interactive{cursor:grabbing}
+.leaflet-marker-icon,.leaflet-marker-shadow,.leaflet-image-layer,.leaflet-pane>svg path,.leaflet-tile-container{pointer-events:none}
+.leaflet-marker-icon.leaflet-interactive,.leaflet-pane>svg path.leaflet-interactive{pointer-events:auto}
+.leaflet-bar{box-shadow:0 1px 5px rgb(0 0 0/.4);border-radius:4px}
+.leaflet-bar a{background:var(--panel);color:var(--fg);border-bottom:1px solid var(--line);width:32px;height:32px;line-height:32px;display:block;text-align:center;text-decoration:none;font:500 18px var(--f-body)}
+.leaflet-bar a:first-child{border-radius:4px 4px 0 0}.leaflet-bar a:last-child{border-radius:0 0 4px 4px;border-bottom:none}
+.leaflet-control-attribution{background:rgb(255 255 255/.75);margin:0;padding:0 5px;color:#333;font-size:10px;line-height:1.5}
+.leaflet-control-attribution a{color:#0b5aa6}
+.leaflet-tooltip{position:absolute;padding:6px 8px;background:var(--panel);color:var(--fg);border:1px solid var(--line);border-radius:4px;white-space:nowrap;user-select:none;pointer-events:none;box-shadow:0 2px 8px rgb(0 0 0/.3);font:12px var(--f-body)}
+.leaflet-tooltip.lbl-perm{background:transparent;border:0;box-shadow:none;color:#fff;font-weight:600;font-size:11px;text-shadow:0 0 3px #000,0 0 6px #000;padding:0 4px}
+
+/* ---- Тема страницы ----
+   Layout: карта слева, реестр справа; паспорт объекта выезжает поверх правого края карты */
+:root{
+  --bg:#eef1f0; --panel:#ffffff; --fg:#17211f; --muted:#5d6b68; --line:#d3dad8; --soft:#f4f6f5;
+  --op:#14a38e; --jv:#e0931f; --mega:#e5483d; --focus:#1b5fd1;
+  --fb-land:#e7e3d6; --fb-kz:#f7f4ea; --fb-sea:#bcd6df; --fb-edge:#8a8f86;
+  --f-display:"Unbounded",system-ui,sans-serif; --f-body:"Onest",system-ui,sans-serif; --f-mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1514; --panel:#161e1d; --fg:#e6ecea; --muted:#94a3a0; --line:#2a3533; --soft:#1b2523;
+  --op:#3cc0a8; --jv:#e6a23c; --mega:#ef6a5f; --focus:#6ea0ff;
+  --fb-land:#1a211f; --fb-kz:#243030; --fb-sea:#0f2229; --fb-edge:#6d7a76; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1514; --panel:#161e1d; --fg:#e6ecea; --muted:#94a3a0; --line:#2a3533; --soft:#1b2523;
+  --op:#3cc0a8; --jv:#e6a23c; --mega:#ef6a5f; --focus:#6ea0ff;
+  --fb-land:#1a211f; --fb-kz:#243030; --fb-sea:#0f2229; --fb-edge:#6d7a76; color-scheme:dark}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:14px}
+button{font-family:inherit}
+.app{display:grid;grid-template-columns:minmax(0,1fr) 340px;grid-template-rows:auto minmax(0,1fr);gap:16px;height:100%;padding:16px;box-sizing:border-box}
+header{grid-column:1/-1;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px}
+h1{font-family:var(--f-display);font-weight:700;font-size:22px;margin:0;letter-spacing:-.01em;text-wrap:balance}
+.sub{color:var(--muted);margin:4px 0 0}
+.stats{display:flex;gap:20px;font-variant-numeric:tabular-nums;flex-wrap:wrap}
+.stats div{display:flex;flex-direction:column}
+.stats b{font-family:var(--f-display);font-size:18px;font-weight:500}
+.stats span,.lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+.mapbox{position:relative;border:1px solid var(--line);border-radius:6px;overflow:hidden;min-height:420px;background:#0b1a24}
+#map{position:absolute;inset:0;background:#0b1a24}
+#map.fallback{background:var(--fb-land)}
+:is(button,.row,input,a):focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* Переключатель подложки и легенда */
+.basesw{position:absolute;top:10px;left:54px;z-index:1000;display:flex;background:var(--panel);border:1px solid var(--line);border-radius:4px;overflow:hidden;box-shadow:0 1px 5px rgb(0 0 0/.3)}
+.basesw button{border:0;background:transparent;color:var(--fg);padding:7px 12px;font-size:12px;font-weight:500;cursor:pointer}
+.basesw button[aria-pressed="true"]{background:var(--fg);color:var(--panel)}
+.legend{position:absolute;left:10px;bottom:24px;z-index:1000;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:12px;display:grid;grid-template-columns:auto auto;gap:4px 14px;max-width:calc(100% - 40px)}
+.legend span{display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sw{width:10px;height:10px;border-radius:50%;background:var(--c);flex:none}
+.sw.ln{width:18px;height:3px;border-radius:2px}
+.sw.ds{height:0;border-top:2px dashed var(--c);background:none}
+.sw.sq{border-radius:2px;transform:rotate(45deg);width:9px;height:9px}
+.sw.pt{border-radius:0;width:0;height:0;background:none;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--c)}
+.banner{position:absolute;top:10px;left:54px;right:10px;z-index:1000;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:12px;max-width:520px;box-shadow:0 2px 8px rgb(0 0 0/.2)}
+.banner b{display:block;margin-bottom:2px}
+.t-op{--c:var(--op)} .t-jv{--c:var(--jv)} .t-mega{--c:var(--mega)}
+
+/* Значки объектов */
+.ico-ref{width:14px;height:14px;background:#ffd23f;border:2px solid #1a1a1a;transform:rotate(45deg);box-sizing:border-box;border-radius:2px;box-shadow:0 0 0 2px rgb(255 255 255/.8)}
+.ico-port{width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid #fff;filter:drop-shadow(0 0 2px #000)}
+.ico-port.dest{border-bottom-color:#7fd1ff}
+.ico-arrow{width:0;height:0;border-top:6px solid transparent;border-bottom:6px solid transparent;border-left:12px solid var(--c);filter:drop-shadow(0 0 2px #000)}
+.leaflet-marker-icon.sel .ico-ref,.leaflet-marker-icon.sel .ico-port{outline:3px solid #fff;outline-offset:3px}
+.cname{color:var(--muted);font:italic 12px var(--f-body);letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;pointer-events:none}
+
+/* ---- Паспорт объекта ---- */
+.card{position:absolute;top:10px;right:10px;bottom:10px;width:min(400px,calc(100% - 20px));background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 10px 30px rgb(0 0 0/.3);display:flex;flex-direction:column;transform:translateX(calc(100% + 20px));transition:transform .28s ease;z-index:1100}
+.card.open{transform:none}
+@media (prefers-reduced-motion:reduce){.card{transition:none}}
+.card-top{display:flex;align-items:center;gap:6px;padding:10px 10px 0}
+.card-top .sp{flex:1}
+.icon{width:30px;height:30px;border:1px solid var(--line);border-radius:4px;background:transparent;color:var(--fg);cursor:pointer;font-size:15px;line-height:1}
+.icon:disabled{opacity:.35;cursor:default}
+.card-body{overflow:auto;padding:4px 18px 18px;display:flex;flex-direction:column;gap:18px;min-height:0}
+.card-body>*{flex-shrink:0}
+.eyebrow{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+.eyebrow i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.card h2{font-family:var(--f-display);font-weight:700;font-size:22px;margin:4px 0 2px;letter-spacing:-.01em;text-wrap:balance}
+.card .reg{color:var(--muted);margin:0}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.kpi{background:var(--panel);padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.kpi b{font-family:var(--f-display);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.kpi small{color:var(--muted);font-size:11px}
+.kpi.na b{color:var(--muted);font-family:var(--f-body);font-size:14px;font-weight:500}
+.sec h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:0 0 8px;font-weight:600}
+.sec p{margin:0;line-height:1.5}
+.props{display:grid;grid-template-columns:minmax(110px,auto) minmax(0,1fr);margin:0;border-top:1px solid var(--line)}
+.props dt,.props dd{padding:7px 0;border-bottom:1px solid var(--line);margin:0}
+.props dt{color:var(--muted);padding-right:12px}
+.props dd.na{color:var(--muted)}
+.mono{font-family:var(--f-mono);font-size:12px}
+.copy{margin-left:8px;border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:3px;font-size:11px;padding:1px 6px;cursor:pointer}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:128px minmax(0,1fr) 54px;gap:8px;align-items:center;font-size:12px}
+.bar span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--muted)}
+.bar .tr{height:8px;background:var(--soft);border-radius:2px}
+.bar .fl{height:100%;background:var(--muted);opacity:.35;border-radius:2px}
+.bar.me span:first-child{color:var(--fg);font-weight:600}
+.bar.me .fl{background:var(--c);opacity:1}
+.bar span:last-child{text-align:right;font-family:var(--f-mono);font-size:11px}
+.fill{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted)}
+.fill .tr{flex:1;height:4px;background:var(--soft);border-radius:2px}
+.fill .fl{height:100%;background:var(--c);border-radius:2px}
+.chain{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;font-size:13px}
+.chain span{padding:3px 8px;border:1px solid var(--line);border-radius:3px;background:var(--soft)}
+.chain em{font-style:normal;color:var(--muted)}
+
+aside{background:var(--panel);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;min-height:0;min-width:0}
+.filters{display:flex;flex-wrap:wrap;gap:6px;padding:12px;border-bottom:1px solid var(--line)}
+.chip{border:1px solid var(--line);background:transparent;color:var(--fg);border-radius:999px;padding:5px 10px;font-size:12px;font-weight:500;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--fg);color:var(--panel);border-color:var(--fg)}
+.search{margin:12px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--fg);font:14px var(--f-body)}
+.list{overflow:auto;flex:1;min-height:0}
+.sect{padding:14px 12px 2px;font-family:var(--f-display);font-size:12px;font-weight:500}
+.grp{padding:8px 12px 4px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);display:flex;justify-content:space-between;gap:8px}
+.row{display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 12px;cursor:pointer;border-left:3px solid transparent}
+.row:hover{background:var(--bg)}
+.row.on{background:var(--bg);border-left-color:var(--c)}
+.row .n{font-weight:600}
+.row .d{color:var(--muted);font-size:12px}
+.row .k{color:var(--muted);font-size:14px}
+.note{font-size:11px;color:var(--muted);padding:8px 12px;border-top:1px solid var(--line)}
+@media (max-width:860px){
+  html,body{height:auto}
+  .app{grid-template-columns:minmax(0,1fr);grid-template-rows:auto;height:auto}
+  .mapbox{height:78vh}
+  .list{max-height:440px}
+  .card{top:auto;left:8px;right:8px;bottom:8px;width:auto;height:64%;transform:translateY(calc(100% + 20px))}
+  .legend{grid-template-columns:auto;bottom:20px}
+  .legend .ext{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header>
+    <div>
+      <h1>Месторождения ДЗО КМГ</h1>
+      <p class="sub">Добыча, переработка и маршруты экспорта нефти АО НК «КазМунайГаз»</p>
+    </div>
+    <div class="stats" id="stats"></div>
+  </header>
+
+  <div class="mapbox" id="mapbox">
+    <div id="map" aria-label="Карта месторождений, нефтепроводов и НПЗ"></div>
+    <div class="basesw" role="group" aria-label="Подложка">
+      <button id="b-sat" aria-pressed="true">Спутник</button>
+      <button id="b-topo" aria-pressed="false">Схема</button>
+    </div>
+    <div class="banner" id="banner" hidden><b>Спутниковая подложка недоступна</b>Эта страница не может загружать внешние слои карты, поэтому показана упрощённая схема. Спутник работает в файле index.html, открытом в браузере или размещённом на вашем сайте.</div>
+    <div class="legend" id="legend">
+      <span class="t-op"><i class="sw"></i>Операционные активы</span>
+      <span class="t-jv"><i class="sw"></i>Совместные предприятия</span>
+      <span class="t-mega"><i class="sw"></i>Мегапроекты</span>
+      <span style="--c:#ffd23f"><i class="sw sq"></i>НПЗ</span>
+      <span class="ext" style="--c:#ff8a3d"><i class="sw ln"></i>Экспортный нефтепровод</span>
+      <span class="ext" style="--c:#e8eef2"><i class="sw ds"></i>Танкеры / транзит по РФ</span>
+      <span class="ext" style="--c:#fff"><i class="sw pt"></i>Порт</span>
+      <span class="ext" style="--c:#7fd1ff"><i class="sw pt"></i>Точка сдачи экспорта</span>
+    </div>
+
+    <section class="card" id="card" aria-label="Паспорт объекта" aria-hidden="true">
+      <div class="card-top">
+        <button class="icon" id="prev" aria-label="Предыдущий объект">‹</button>
+        <button class="icon" id="next" aria-label="Следующий объект">›</button>
+        <span class="sp"></span>
+        <button class="icon" id="close" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="card-body" id="cardBody"></div>
+    </section>
+  </div>
+
+  <aside>
+    <div class="filters" id="filters"></div>
+    <input class="search" id="q" type="search" placeholder="Поиск: месторождение, НПЗ, порт, регион">
+    <div class="list" id="list"></div>
+    <div class="note">Нажмите на объект на карте или в списке, чтобы открыть паспорт. Координаты и трассы нефтепроводов схематичные, для прототипа. Добыча: годовой отчёт КМГ за 2024 г. Мощности НПЗ и трубопроводов справочные, их нужно сверить.</div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+// =====================================================================
+//  ДАННЫЕ. Всё, что нужно редактировать, находится в этом блоке.
+//  null или отсутствие поля = «нет данных» в паспорте.
+// =====================================================================
+const TYPES={op:"Операционные",jv:"СП",mega:"Мегапроекты"};
+// prod — добыча актива в 2024 г. в доле КМГ, тыс. т (годовой отчёт КМГ)
+const ASSETS={
+  OMG:{name:"Озенмунайгаз",type:"op",share:"100%",pct:1,prod:5098},
+  EMG:{name:"Эмбамунайгаз",type:"op",share:"100%",pct:1,prod:2790},
+  MMG:{name:"Мангистаумунайгаз",type:"op",share:"100%",pct:1,prod:3085},
+  KTM:{name:"Казахтуркмунай",type:"op",share:"100%",pct:1,prod:440},
+  URO:{name:"Урихтау Оперейтинг",type:"op",share:"100%",pct:1,prod:84},
+  DUN:{name:"Дунга",type:"jv",share:"60%",pct:.6,prod:378},
+  KBM:{name:"Каражанбасмунай",type:"jv",share:"50%",pct:.5,prod:1077},
+  KGM:{name:"Казгермунай",type:"jv",share:"50%",pct:.5,prod:521},
+  KOA:{name:"Казахойл Актобе",type:"jv",share:"50%",pct:.5,prod:238},
+  PKI:{name:"ПетроКазахстан",type:"jv",share:"33%",pct:.33,prod:472},
+  UOG:{name:"Урал Ойл энд Газ",type:"jv",share:"50%",pct:.5,prod:111},
+  TCO:{name:"Тенгизшевройл",type:"mega",share:"20%",pct:.2,prod:5562},
+  NCOC:{name:"NCOC (Кашаган)",type:"mega",share:"16,88%",pct:.1688,prod:2885},
+  KPO:{name:"KPO (Карачаганак)",type:"mega",share:"10%",pct:.1,prod:1097}
+};
+// Месторождения. exact: 1 — координаты из открытых источников, иначе приблизительно.
+// hc — тип УВ, year — год открытия, area — площадь, depth — глубина,
+// prod — добыча месторождения, тыс. т/год (100%), single — актив состоит из одного месторождения
+const FIELDS=[
+  {slug:"uzen",n:"Узень",a:"OMG",r:"Мангистауская",lat:43.37,lon:52.90,hc:"Нефть и газ",year:1961},
+  {slug:"karamandybas",n:"Карамандыбас",a:"OMG",r:"Мангистауская",lat:43.55,lon:53.22,hc:"Нефть"},
+  {slug:"nurzhanov",n:"С. Нуржанов",a:"EMG",r:"Атырауская",lat:46.10,lon:53.05,hc:"Нефть"},
+  {slug:"moldabek",n:"Восточный Молдабек",a:"EMG",r:"Атырауская",lat:46.75,lon:54.15,hc:"Нефть"},
+  {slug:"prorva",n:"Прорва",a:"EMG",r:"Атырауская",lat:45.95,lon:53.25,hc:"Нефть"},
+  {slug:"kenbai",n:"Кенбай",a:"EMG",r:"Атырауская",lat:47.45,lon:55.10,hc:"Нефть"},
+  {slug:"dossor",n:"Доссор",a:"EMG",r:"Атырауская",lat:47.53,lon:52.98,hc:"Нефть",year:1911},
+  {slug:"makat",n:"Макат",a:"EMG",r:"Атырауская",lat:47.65,lon:53.32,hc:"Нефть",year:1915},
+  {slug:"kalamkas",n:"Каламкас",a:"MMG",r:"Мангистауская",lat:45.37,lon:51.95,hc:"Нефть и газ",year:1976},
+  {slug:"zhetybai",n:"Жетыбай",a:"MMG",r:"Мангистауская",lat:43.60,lon:52.07,hc:"Нефть и газ",year:1961},
+  {slug:"ktm",n:"Группа месторождений КТМ",a:"KTM",r:"Мангистауская",lat:44.30,lon:53.10,hc:"Нефть"},
+  {slug:"urikhtau",n:"Урихтау",a:"URO",r:"Актюбинская",lat:48.55,lon:57.35,hc:"Газ и конденсат",single:1},
+  {slug:"dunga",n:"Дунга",a:"DUN",r:"Мангистауская",lat:44.10,lon:51.25,hc:"Нефть",year:1966,single:1},
+  {slug:"karazhanbas",n:"Каражанбас",a:"KBM",r:"Мангистауская",lat:45.07,lon:51.32,hc:"Высоковязкая нефть",year:1974,depth:"≈ 230–460 м",single:1},
+  {slug:"akshabulak",n:"Акшабулак",a:"KGM",r:"Кызылординская",lat:45.33,lon:64.93,hc:"Нефть"},
+  {slug:"nuraly",n:"Нуралы",a:"KGM",r:"Кызылординская",lat:45.20,lon:64.72,hc:"Нефть"},
+  {slug:"alibekmola",n:"Алибекмола",a:"KOA",r:"Актюбинская",lat:48.40,lon:57.60,hc:"Нефть"},
+  {slug:"kozhasai",n:"Кожасай",a:"KOA",r:"Актюбинская",lat:48.05,lon:57.55,hc:"Нефть"},
+  {slug:"kumkol",n:"Кумколь",a:"PKI",r:"Кызылординская",lat:46.2297,lon:65.2875,exact:1,hc:"Нефть",year:1984},
+  {slug:"rozhkovskoe",n:"Рожковское",a:"UOG",r:"Западно-Казахстанская",lat:51.10,lon:51.55,hc:"Газ и конденсат",single:1},
+  {slug:"tengiz",n:"Тенгиз",a:"TCO",r:"Атырауская",lat:46.1528,lon:53.3833,exact:1,hc:"Нефть",year:1979,area:"≈ 400 км² (19 × 21 км)",depth:"≈ 3 900–5 400 м",single:1},
+  {slug:"kashagan",n:"Кашаган",a:"NCOC",r:"Атырауская (шельф Каспия)",lat:46.1667,lon:51.5833,exact:1,hc:"Нефть",year:2000,area:"≈ 75 × 45 км",depth:"≈ 4 200 м",single:1},
+  {slug:"karachaganak",n:"Карачаганак",a:"KPO",r:"Западно-Казахстанская",lat:51.3535,lon:53.2111,exact:1,hc:"Газ и конденсат",year:1979,area:"≈ 280 км²",depth:"≈ 3 500–5 300 м",single:1}
+];
+
+// Нефтепроводы и маршруты. path — [широта, долгота]; dashed — танкерный/транзитный участок.
+const PIPES=[
+  {slug:"cpc",n:"Каспийский трубопроводный консорциум (КТК)",short:"КТК",color:"#ff8a3d",
+   route:["Тенгиз","Атырау","Кропоткин","Новороссийск"],len:"≈ 1 510 км",cap:"≈ 67 млн т/год",share:"20,75%",
+   operator:"АО «КТК-К» / АО «КТК-Р»",to:"novorossiysk",
+   about:"Основной маршрут экспорта казахстанской нефти: через него идёт большая часть экспорта, включая нефть Тенгиза, Кашагана и Карачаганака.",
+   path:[[46.15,53.38],[46.9,52.6],[47.05,51.9],[46.75,50.0],[46.35,48.3],[46.0,46.3],[45.45,43.5],[45.44,40.57],[45.0,38.9],[44.68,37.64]]},
+  {slug:"uas",n:"Узень – Атырау – Самара",short:"УАС",color:"#ffd23f",
+   route:["Узень","Атырау","Самара"],len:"≈ 1 380 км",cap:"≈ 15 млн т/год (Атырау – Самара)",share:"через КазТрансОйл",
+   operator:"АО «КазТрансОйл»",to:"ustluga",
+   about:"Выход в систему «Транснефти»: далее нефть идёт в порт Усть-Луга и по нефтепроводу «Дружба» в Германию.",
+   path:[[43.37,52.90],[44.2,52.4],[45.3,52.5],[46.4,52.3],[47.1,51.95],[48.3,51.5],[49.8,51.3],[51.3,51.0],[52.3,50.6],[53.2,50.1]]},
+  {slug:"kcp",n:"Казахстан – Китай",short:"ККТ",color:"#ff4d6d",
+   route:["Атырау","Кенкияк","Кумколь","Атасу","Алашанькоу"],len:"≈ 2 800 км (все участки)",cap:"≈ 20 млн т/год (Атасу – Алашанькоу)",share:"через КазТрансОйл (50% в ТОО «ККТ»)",
+   operator:"ТОО «Казахстанско-Китайский Трубопровод», ТОО «МунайТас»",to:"alashankou",
+   about:"Восточный экспортный маршрут: поставки на НПЗ в Синьцзян-Уйгурском районе Китая, а также транзит российской нефти.",
+   path:[[47.1,51.95],[47.9,54.5],[48.6,57.2],[47.6,61.0],[46.23,65.29],[46.8,68.5],[47.6,70.5],[48.68,71.64],[47.9,75.0],[46.9,79.0],[45.9,81.2],[45.17,82.57]]},
+  {slug:"ops",n:"Омск – Павлодар – Шымкент",short:"ОПШ",color:"#7fd1ff",
+   route:["Омск","Павлодар","Атасу","Шымкент"],len:null,cap:null,share:"через КазТрансОйл",
+   operator:"АО «КазТрансОйл»",to:null,
+   about:"Поставка сырья на Павлодарский и Шымкентский НПЗ, включая российскую нефть из Западной Сибири.",
+   path:[[54.98,73.37],[53.6,75.2],[52.33,77.0],[50.8,75.6],[49.8,73.1],[48.68,71.64],[46.5,70.4],[44.5,69.9],[42.3,69.7]]},
+  {slug:"tanker",n:"Танкерный маршрут Актау – Баку",short:"Каспий",color:"#e8eef2",dashed:1,
+   route:["Актау / Курык","Баку (Сангачал)"],len:"≈ 450 км по морю",cap:null,share:"ТОО «Казмортрансфлот» (КМГ)",
+   operator:"Казмортрансфлот",to:null,
+   about:"Транскаспийский маршрут: нефть из портов Актау и Курык танкерами доставляется в Баку, далее по нефтепроводу Баку – Тбилиси – Джейхан.",
+   path:[[43.6,51.2],[42.6,50.9],[41.4,50.2],[40.6,50.0],[40.18,49.47]]},
+  {slug:"btc",n:"Баку – Тбилиси – Джейхан",short:"БТД",color:"#b388ff",
+   route:["Баку (Сангачал)","Тбилиси","Джейхан"],len:"≈ 1 770 км",cap:"≈ 1,2 млн барр./сут",share:"—",
+   operator:"BTC Co. (оператор bp)",to:"ceyhan",
+   about:"Используется для транзита казахстанской нефти, доставленной танкерами через Каспий.",
+   path:[[40.18,49.47],[40.6,47.2],[41.2,45.5],[41.7,44.8],[41.4,42.8],[40.4,41.0],[39.2,39.2],[38.0,37.4],[36.88,35.93]]},
+  {slug:"transneft",n:"Транзит по системе «Транснефти»",short:"Транзит РФ",color:"#e8eef2",dashed:1,
+   route:["Самара","Унеча","Усть-Луга","Шведт (по «Дружбе»)"],len:null,cap:null,share:"—",
+   operator:"ПАО «Транснефть»",to:"ustluga",
+   about:"Схематично: транзит казахстанской нефти через Россию в порт Усть-Луга и по нефтепроводу «Дружба» на НПЗ Шведт в Германии.",
+   path:[[53.2,50.1],[53.5,45.0],[53.0,38.0],[52.85,32.68],[55.0,31.0],[57.5,29.5],[59.68,28.4]],
+   branch:[[52.85,32.68],[52.1,29.3],[52.2,23.9],[52.4,19.5],[53.09,14.27]]}
+];
+
+// НПЗ
+const REFS=[
+  {slug:"anpz",n:"Атырауский НПЗ",city:"Атырау",lat:47.08,lon:51.98,cap:"≈ 5,5 млн т/год",share:"≈ 99,5%",r:"Атырауская",
+   about:"Переработка нефти западноказахстанских месторождений, в том числе Эмбамунайгаза."},
+  {slug:"pnhz",n:"Павлодарский НХЗ",city:"Павлодар",lat:52.33,lon:77.05,cap:"≈ 6 млн т/год",share:"100%",r:"Павлодарская",
+   about:"Сырьё поступает по нефтепроводу Омск – Павлодар."},
+  {slug:"pkop",n:"ПетроКазахстан Ойл Продактс (ПКОП)",city:"Шымкент",lat:42.26,lon:69.72,cap:"≈ 6 млн т/год",share:"≈ 50%",r:"Туркестанская",
+   about:"Совместное предприятие КМГ и CNPC. Перерабатывает нефть кумкольской группы месторождений."},
+  {slug:"caspibitum",n:"Caspi Bitum",city:"Актау",lat:43.66,lon:51.25,cap:"≈ 1 млн т/год",share:"50%",r:"Мангистауская",
+   about:"Производство дорожного битума из тяжёлой нефти Каражанбаса. СП КМГ и CITIC."}
+];
+
+// Порты и точки сдачи экспорта. dest: 1 — конечная точка за рубежом
+const PORTS=[
+  {slug:"novorossiysk",n:"Морской терминал КТК",city:"Новороссийск, Россия",lat:44.68,lon:37.64,dest:1,via:"cpc",
+   about:"Выносные причальные устройства КТК на Чёрном море; отгрузка смеси CPC Blend танкерами."},
+  {slug:"ustluga",n:"Порт Усть-Луга",city:"Ленинградская обл., Россия",lat:59.68,lon:28.40,dest:1,via:"uas",
+   about:"Балтийский порт, куда поступает нефть по маршруту Атырау – Самара и далее по системе «Транснефти»."},
+  {slug:"schwedt",n:"НПЗ Шведт",city:"Германия",lat:53.09,lon:14.27,dest:1,via:"transneft",
+   about:"Поставки казахстанской нефти по северной ветке нефтепровода «Дружба»."},
+  {slug:"ceyhan",n:"Терминал Джейхан",city:"Турция",lat:36.88,lon:35.93,dest:1,via:"btc",
+   about:"Средиземноморский терминал нефтепровода Баку – Тбилиси – Джейхан."},
+  {slug:"alashankou",n:"Алашанькоу",city:"СУАР, Китай",lat:45.17,lon:82.57,dest:1,via:"kcp",
+   about:"Пункт сдачи нефти на границе с Китаем; далее на НПЗ Душаньцзы и другие НПЗ Синьцзяна."},
+  {slug:"aktau",n:"Морской порт Актау",city:"Актау, Казахстан",lat:43.61,lon:51.22,via:"tanker",
+   about:"Основной порт Казахстана на Каспии; отгрузка нефти танкерами на Баку."},
+  {slug:"kuryk",n:"Порт Курык",city:"Мангистауская обл., Казахстан",lat:43.17,lon:51.66,via:"tanker",
+   about:"Паромный и нефтеналивной порт на Каспии, участок Транскаспийского маршрута."},
+  {slug:"baku",n:"Терминал Сангачал",city:"Баку, Азербайджан",lat:40.18,lon:49.47,via:"btc",
+   about:"Приём нефти с танкеров и начальная точка нефтепровода Баку – Тбилиси – Джейхан."}
+];
+
+// Упрощённый контур РК и морей: запасная схема, если спутниковые тайлы недоступны
+const KZ=[[49.2,46.4],[48.7,46.8],[48.6,47.4],[47.4,47.7],[47.0,48.2],[46.5,48.4],[46.8,49.0],[46.9,49.9],[47.5,50.4],[48.3,50.6],[48.7,51.2],[49.4,51.4],[50.5,51.6],[51.4,51.7],[52.3,51.75],[53.3,51.6],[54.3,51.2],[55.7,50.6],[56.8,50.9],[57.5,50.9],[58.5,51.1],[59.5,50.6],[60.0,50.9],[61.4,50.8],[61.6,51.3],[60.1,52.0],[61.1,52.9],[62.1,53.0],[61.2,53.3],[61.4,53.9],[62.8,54.0],[63.2,54.2],[64.8,54.4],[65.5,54.6],[67.0,54.8],[68.2,55.0],[69.0,55.4],[70.5,55.2],[71.2,54.1],[72.2,54.2],[73.5,54.0],[73.4,53.5],[74.4,53.6],[76.2,54.3],[76.6,54.0],[77.8,53.3],[79.0,52.0],[80.1,50.8],[80.6,51.3],[81.9,50.8],[83.4,51.0],[84.2,50.3],[85.0,49.6],[86.8,49.8],[87.3,49.2],[86.6,48.6],[85.8,48.4],[85.5,47.1],[84.0,46.9],[83.0,47.2],[82.3,45.5],[81.0,45.2],[79.9,44.9],[80.4,44.1],[80.2,42.9],[78.5,42.9],[77.0,42.95],[75.7,42.8],[74.2,43.2],[73.5,42.5],[71.8,42.8],[71.0,42.3],[70.9,42.0],[70.4,41.5],[69.0,41.45],[68.6,40.65],[68.0,41.0],[66.7,41.2],[66.5,42.0],[66.0,42.0],[66.0,43.0],[65.5,43.5],[64.9,43.7],[62.0,43.5],[61.1,44.2],[58.6,45.6],[58.5,45.0],[56.0,45.0],[56.0,41.3],[52.6,41.9],[52.8,42.4],[52.5,42.8],[51.3,43.2],[51.1,43.6],[50.8,44.3],[50.25,44.6],[50.9,44.8],[51.1,45.2],[51.4,45.5],[52.2,45.45],[53.0,45.3],[53.0,45.9],[53.1,46.4],[52.5,46.8],[51.5,46.95],[50.3,46.8]].map(([lo,la])=>[la,lo]);
+const SEAS=[
+  // Каспий
+  [[46.95,51.5],[46.8,50.3],[46.4,49.2],[45.8,48.5],[45.2,47.4],[44.2,47.2],[43.0,47.5],[41.9,48.5],[41.2,49.2],[40.6,50.3],[40.1,49.5],[39.2,49.2],[38.4,48.9],[37.4,49.2],[36.8,50.5],[36.9,52.5],[36.9,53.9],[37.3,53.9],[38.5,53.1],[39.5,53.4],[40.0,52.8],[41.0,52.9],[41.9,52.6],[42.4,52.8],[42.8,52.5],[43.2,51.3],[43.6,51.1],[44.3,50.8],[44.6,50.25],[44.8,50.9],[45.2,51.1],[45.5,51.4],[45.45,52.2],[45.3,53.0],[45.9,53.0],[46.4,53.1],[46.8,52.5]],
+  // Чёрное море
+  [[41.2,29.1],[41.7,28.1],[43.0,27.9],[44.3,28.7],[45.2,29.7],[46.5,30.8],[46.6,31.8],[46.0,33.0],[45.2,32.5],[44.4,33.5],[44.4,34.4],[45.0,35.4],[45.3,36.6],[44.6,37.7],[43.6,39.8],[42.5,41.5],[41.5,41.6],[41.1,40.3],[41.0,38.0],[42.0,35.2],[41.8,33.3],[41.2,31.0]],
+  // Аральское море, Балхаш
+  [[46.6,58.3],[46.4,59.5],[46.6,61.2],[46.2,61.7],[45.6,60.3],[45.6,59.4],[45.9,58.6]],
+  [[46.3,73.4],[46.9,74.3],[46.75,75.3],[46.6,76.4],[46.45,77.5],[46.6,78.6],[46.5,79.2],[46.25,78.3],[46.3,77.0],[46.45,75.6],[46.5,74.6],[46.1,74.0]]
+];
+const COUNTRIES=[["Казахстан",48.3,67.0],["Россия",55.8,52.0],["Китай",43.5,86.5],["Узбекистан",41.8,63.5],["Туркменистан",39.3,58.5],["Азербайджан",40.6,47.6],["Грузия",42.2,43.6],["Турция",39.2,34.0],["Иран",37.0,55.0],["Украина",49.0,31.5],["Германия",51.3,10.8],["Польша",52.3,19.3]];
+
+// =====================================================================
+//  Подготовка данных
+// =====================================================================
+const fmt=n=>n.toLocaleString("ru-RU");
+FIELDS.forEach(f=>{f.kind="field";f.asset=ASSETS[f.a];f.type=f.asset.type;if(f.single&&f.prod==null)f.prod=Math.round(f.asset.prod/f.asset.pct)});
+PIPES.forEach(p=>p.kind="pipe"); REFS.forEach(r=>r.kind="ref"); PORTS.forEach(p=>p.kind="port");
+const ITEMS=[...FIELDS,...PIPES,...REFS,...PORTS];
+ITEMS.forEach((it,i)=>it.id=i);
+const BY=Object.fromEntries(ITEMS.map(i=>[i.slug,i]));
+const LAYERS={field:"Месторождения",pipe:"Нефтепроводы",ref:"НПЗ",port:"Порты и экспорт"};
+
+// =====================================================================
+//  Карта
+// =====================================================================
+const mapEl=document.getElementById("map"), box=document.getElementById("mapbox");
+const map=L.map(mapEl,{zoomControl:false,minZoom:3,maxZoom:18,worldCopyJump:true,attributionControl:true});
+L.control.zoom({position:"topleft",zoomInTitle:"Приблизить",zoomOutTitle:"Отдалить"}).addTo(map);
+map.attributionControl.setPrefix(false);
+const ESRI="https://server.arcgisonline.com/ArcGIS/rest/services/";
+const sat=L.tileLayer(ESRI+"World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Спутник © Esri, Maxar, Earthstar Geographics"});
+const satLabels=L.tileLayer(ESRI+"Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Границы и подписи © Esri"});
+const topo=L.tileLayer(ESRI+"World_Topo_Map/MapServer/tile/{z}/{y}/{x}",{maxZoom:18,attribution:"Карта © Esri, HERE, Garmin, OpenStreetMap contributors"});
+const baseSat=L.layerGroup([sat,satLabels]);
+let base="sat"; baseSat.addTo(map);
+
+// Запасная схема: включается, если тайлы не загрузились
+const fallback=L.layerGroup();
+SEAS.forEach(s=>L.polygon(s,{stroke:false,fillColor:getVar("--fb-sea"),fillOpacity:1,interactive:false}).addTo(fallback));
+const kzPoly=L.polygon(KZ,{color:getVar("--fb-edge"),weight:1.2,fillColor:getVar("--fb-kz"),fillOpacity:1,interactive:false}).addTo(fallback);
+COUNTRIES.forEach(([n,la,lo])=>L.marker([la,lo],{interactive:false,icon:L.divIcon({className:"",html:`<div class="cname">${n}</div>`,iconSize:[0,0],iconAnchor:[40,8]})}).addTo(fallback));
+let loaded=0, failed=0, fbOn=false;
+[sat,topo].forEach(t=>{t.on("tileload",()=>loaded++);t.on("tileerror",()=>failed++)});
+setTimeout(()=>{if(loaded===0&&failed>0)enableFallback()},3500);
+function enableFallback(){
+  if(fbOn) return; fbOn=true;
+  map.removeLayer(baseSat); map.removeLayer(topo);
+  fallback.addTo(map); fallback.eachLayer(l=>l.bringToBack&&l.bringToBack());
+  mapEl.classList.add("fallback"); document.getElementById("banner").hidden=false;
+  document.querySelector(".basesw").hidden=true;
+  map.attributionControl.remove();
+}
+function getVar(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim()}
+function setBase(b){
+  if(fbOn||b===base) return; base=b;
+  if(b==="sat"){map.removeLayer(topo);baseSat.addTo(map)}else{map.removeLayer(baseSat);topo.addTo(map)}
+  document.getElementById("b-sat").setAttribute("aria-pressed",b==="sat");
+  document.getElementById("b-topo").setAttribute("aria-pressed",b==="topo");
+}
+document.getElementById("b-sat").onclick=()=>setBase("sat");
+document.getElementById("b-topo").onclick=()=>setBase("topo");
+
+// ---- Слои объектов ----
+const groups={field:L.layerGroup().addTo(map),pipe:L.layerGroup().addTo(map),ref:L.layerGroup().addTo(map),port:L.layerGroup().addTo(map)};
+const layerOf={}; // id -> объект Leaflet (для подсветки)
+function bindCommon(layer,it,tip){
+  layer.bindTooltip(tip,{direction:"top",offset:[0,-8],sticky:it.kind==="pipe"});
+  layer.on("click",e=>{L.DomEvent.stopPropagation(e);openItem(it.id,{fly:it.kind==="pipe"||hiddenUnderCard(e.containerPoint)})});
+}
+function colorOf(f){return getVar(f.type==="op"?"--op":f.type==="jv"?"--jv":"--mega")}
+
+// Нефтепроводы: подложка-«обводка» для читаемости на спутнике + цветная линия + стрелка направления
+PIPES.forEach(p=>{
+  const paths=[p.path].concat(p.branch?[p.branch]:[]);
+  const g=L.layerGroup();
+  paths.forEach(path=>{
+    L.polyline(path,{color:"#000",weight:p.dashed?4:6,opacity:.45,interactive:false}).addTo(g);
+    const line=L.polyline(path,{color:p.color,weight:p.dashed?2:3.5,opacity:.95,dashArray:p.dashed?"6 6":null,lineCap:"round"}).addTo(g);
+    bindCommon(line,p,`<b>${p.n}</b><br>${p.route.join(" → ")}`);
+    (layerOf[p.id]=layerOf[p.id]||[]).push(line);
+    // стрелка в конце трассы
+    const a=path[path.length-2], b=path[path.length-1];
+    const pa=map.project(a,5), pb=map.project(b,5), ang=Math.atan2(pb.y-pa.y,pb.x-pa.x)*180/Math.PI;
+    const mid=[(a[0]+b[0])/2,(a[1]+b[1])/2];
+    L.marker(mid,{interactive:false,icon:L.divIcon({className:"",html:`<div class="ico-arrow" style="--c:${p.color};transform:rotate(${ang}deg)"></div>`,iconSize:[12,12],iconAnchor:[6,6]})}).addTo(g);
+  });
+  g.addTo(groups.pipe);
+});
+// НПЗ
+REFS.forEach(r=>{
+  const m=L.marker([r.lat,r.lon],{icon:L.divIcon({className:"",html:'<div class="ico-ref"></div>',iconSize:[14,14],iconAnchor:[7,7]}),keyboard:false,riseOnHover:true});
+  bindCommon(m,r,`<b>${r.n}</b><br>${r.city} · ${r.cap}`); m.addTo(groups.ref); layerOf[r.id]=[m];
+});
+// Порты
+PORTS.forEach(p=>{
+  const m=L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",html:`<div class="ico-port${p.dest?" dest":""}"></div>`,iconSize:[16,14],iconAnchor:[8,10]}),keyboard:false,riseOnHover:true});
+  bindCommon(m,p,`<b>${p.n}</b><br>${p.city}`); m.addTo(groups.port); layerOf[p.id]=[m];
+});
+// Месторождения (поверх остального)
+FIELDS.forEach(f=>{
+  const c=L.circleMarker([f.lat,f.lon],{radius:7,color:"#fff",weight:2,fillColor:colorOf(f),fillOpacity:1,dashArray:f.exact?null:"3 2"});
+  bindCommon(c,f,`<b>${f.n}</b><br>${f.asset.name} · доля КМГ ${f.asset.share}${f.exact?"":"<br><span style='opacity:.7'>координаты ≈</span>"}`);
+  c.addTo(groups.field); layerOf[f.id]=[c];
+});
+// перекраска при смене темы
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>FIELDS.forEach(f=>layerOf[f.id][0].setStyle({fillColor:colorOf(f)})));
+
+map.on("click",()=>closeItem());
+const HOME=L.latLngBounds([[38,44],[56,86]]);
+map.fitBounds(HOME);
+
+function cardWidth(){return innerWidth>860?Math.min(400,box.clientWidth-20)+20:0}
+function hiddenUnderCard(pt){
+  if(innerWidth>860) return pt.x>box.clientWidth-cardWidth();
+  return pt.y>box.clientHeight*0.34;
+}
+function flyTo(it){
+  const padBR=innerWidth>860?[cardWidth()+20,30]:[20,box.clientHeight*0.66+10], padTL=[60,60];
+  if(it.kind==="pipe"){
+    const b=L.latLngBounds(it.path.concat(it.branch||[]));
+    map.flyToBounds(b,{paddingTopLeft:padTL,paddingBottomRight:padBR,duration:.8}); return;
+  }
+  const z=Math.max(map.getZoom(),it.kind==="field"?7:6);
+  const pt=map.project([it.lat,it.lon],z).add([padBR[0]/2-padTL[0]/2+10,innerWidth>860?0:padBR[1]/2-20]);
+  map.flyTo(map.unproject(pt,z),z,{duration:.8});
+}
+
+// =====================================================================
+//  Список и фильтры
+// =====================================================================
+const state={on:new Set(Object.keys(LAYERS)),q:"",sel:null};
+const filt=document.getElementById("filters");
+Object.entries(LAYERS).forEach(([k,v])=>{const b=document.createElement("button");b.className="chip";b.id="chip-"+k;b.textContent=v;b.setAttribute("aria-pressed","true");
+  b.onclick=()=>{state.on.has(k)?state.on.delete(k):state.on.add(k);b.setAttribute("aria-pressed",state.on.has(k));
+    state.on.has(k)?groups[k].addTo(map):map.removeLayer(groups[k]);render()};filt.appendChild(b)});
+document.getElementById("q").addEventListener("input",e=>{state.q=e.target.value.trim().toLowerCase();render()});
+function hay(it){return [it.n,it.r,it.city,it.asset&&it.asset.name,it.route&&it.route.join(" ")].filter(Boolean).join(" ").toLowerCase()}
+const visible=it=>state.on.has(it.kind)&&(!state.q||hay(it).includes(state.q));
+
+function swatch(it){
+  if(it.kind==="field") return `<i class="sw t-${it.type}"></i>`;
+  if(it.kind==="pipe") return `<i class="sw ${it.dashed?"ds":"ln"}" style="--c:${it.color};width:12px"></i>`;
+  if(it.kind==="ref") return `<i class="sw sq" style="--c:#ffd23f"></i>`;
+  return `<i class="sw pt" style="--c:${it.dest?"#7fd1ff":"var(--muted)"}"></i>`;
+}
+function row(it,sub){
+  const r=document.createElement("div");r.className=`row${it.kind==="field"?" t-"+it.type:""}${it.id===state.sel?" on":""}`;r.tabIndex=0;r.setAttribute("role","button");
+  if(it.kind==="pipe")r.style.setProperty("--c",it.color); if(it.kind==="ref")r.style.setProperty("--c","#e0b400"); if(it.kind==="port")r.style.setProperty("--c","#3aa7d9");
+  r.innerHTML=`${swatch(it)}<div><div class="n">${it.n}</div><div class="d">${sub}</div></div><div class="k">›</div>`;
+  r.onclick=()=>openItem(it.id,{fly:true}); r.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openItem(it.id,{fly:true})}};
+  return r;
+}
+function render(){
+  // подсветка на карте
+  ITEMS.forEach(it=>(layerOf[it.id]||[]).forEach(l=>{
+    const on=visible(it), sel=it.id===state.sel;
+    if(l.setStyle){ if(it.kind==="field") l.setStyle({fillOpacity:on?1:.15,opacity:on?1:.2,radius:sel?10:7,weight:sel?3:2});
+      else l.setStyle({opacity:on?.95:.15,weight:(it.dashed?2:3.5)+(sel?2.5:0)}); if(it.kind==="field"&&l.setRadius)l.setRadius(sel?10:7); }
+    else { l.setOpacity(on?1:.2); const el=l.getElement(); if(el)el.classList.toggle("sel",sel); }
+  }));
+  const list=document.getElementById("list"); list.innerHTML="";
+  const add=(title,nodes)=>{if(!nodes.length)return;const h=document.createElement("div");h.className="sect";h.textContent=title;list.appendChild(h);nodes.forEach(n=>list.appendChild(n))};
+  // месторождения по активам
+  const fnodes=[];
+  Object.entries(ASSETS).forEach(([code,a])=>{
+    const rows=FIELDS.filter(f=>f.a===code&&visible(f)); if(!rows.length) return;
+    const h=document.createElement("div");h.className="grp";h.innerHTML=`<span>${a.name} · ${a.share}</span><span>${fmt(a.prod)} тыс. т</span>`;fnodes.push(h);
+    rows.forEach(f=>fnodes.push(row(f,f.r)));
+  });
+  add("Месторождения",fnodes);
+  add("Нефтепроводы и маршруты",PIPES.filter(visible).map(p=>row(p,p.route.join(" → "))));
+  add("НПЗ",REFS.filter(visible).map(r=>row(r,`${r.city} · ${r.cap}`)));
+  add("Порты и точки экспорта",PORTS.filter(visible).map(p=>row(p,p.city)));
+  if(!list.children.length) list.innerHTML='<p style="padding:12px;color:var(--muted)">Ничего не найдено. Измените запрос или включите слои выше.</p>';
+  const shown=FIELDS.filter(visible), assets=new Set(shown.map(f=>f.a));
+  const prod=[...assets].reduce((s,a)=>s+ASSETS[a].prod,0);
+  document.getElementById("stats").innerHTML=`<div><b>${shown.length}</b><span>месторождений</span></div><div><b>${fmt(prod)}</b><span>тыс. т, 2024 (доля КМГ)</span></div><div><b>${PIPES.filter(visible).length}</b><span>маршрутов</span></div><div><b>${REFS.filter(visible).length}</b><span>НПЗ</span></div>`;
+}
+
+// =====================================================================
+//  Паспорт объекта
+// =====================================================================
+const card=document.getElementById("card"), body=document.getElementById("cardBody");
+const NA="нет данных";
+const kpi=(label,val,note)=>`<div class="kpi${val==null?" na":""}"><span class="lbl">${label}</span><b>${val??NA}</b>${note?`<small>${note}</small>`:""}</div>`;
+const prop=(label,val)=>`<dt>${label}</dt><dd class="${val==null?"na":""}">${val??NA}</dd>`;
+const link=(slug,text)=>BY[slug]?`<a href="#${slug}" style="color:inherit">${text||BY[slug].n}</a>`:(text||"");
+function coords(it){return `<dt>Координаты</dt><dd><span class="mono" id="coords">${it.lat.toFixed(4)}, ${it.lon.toFixed(4)}</span>${it.kind==="field"&&!it.exact?" <span style='color:var(--muted)'>≈</span>":""}<button class="copy" id="copyBtn">Копировать</button></dd>`}
+
+function fieldCard(f){
+  const a=f.asset, sibl=FIELDS.filter(x=>x.a===f.a);
+  const keys=["area","prod","year","depth","hc"], filled=keys.filter(k=>f[k]!=null).length;
+  const maxP=Math.max(...Object.values(ASSETS).map(x=>x.prod));
+  const bars=Object.entries(ASSETS).sort((x,y)=>y[1].prod-x[1].prod).map(([c,x])=>
+    `<div class="bar${c===f.a?" me":""}"><span>${x.name}</span><div class="tr"><div class="fl" style="width:${(x.prod/maxP*100).toFixed(1)}%"></div></div><span>${fmt(x.prod)}</span></div>`).join("");
+  return {cls:`t-${f.type}`,html:`
+    <div><div class="eyebrow"><i></i>${a.name} · ${TYPES[f.type]}</div><h2>${f.n}</h2><p class="reg">${f.r} область</p></div>
+    <div class="kpis">
+      ${kpi("Площадь",f.area)}
+      ${kpi("Годовая добыча",f.prod!=null?fmt(f.prod)+" тыс. т":null,f.prod!=null?"2024 г., 100% месторождения":`по активу: ${fmt(a.prod)} тыс. т`)}
+      ${kpi("Доля КМГ",a.share)}
+      ${kpi("Год открытия",f.year)}
+    </div>
+    <div class="fill"><span>Паспорт заполнен: ${filled} из ${keys.length}</span><div class="tr"><div class="fl" style="width:${filled/keys.length*100}%"></div></div></div>
+    <div class="sec"><h3>Характеристики</h3><dl class="props">
+      ${prop("Тип углеводородов",f.hc)}${prop("Глубина залегания",f.depth)}${prop("Недропользователь",a.name)}${prop("Статус","Добыча")}
+      ${prop("Месторождений в активе",sibl.length>1?`${sibl.length} на карте: ${sibl.map(s=>s.n).join(", ")}`:"1")}
+      ${coords(f)}
+    </dl></div>
+    <div class="sec"><h3>Добыча активов КМГ, 2024, тыс. т (доля КМГ)</h3><div class="bars">${bars}</div></div>`};
+}
+function pipeCard(p){
+  return {cls:"",style:`--c:${p.color}`,html:`
+    <div><div class="eyebrow"><i></i>${p.dashed?"Маршрут экспорта":"Нефтепровод"} · ${p.short}</div><h2>${p.n}</h2></div>
+    <div class="chain">${p.route.map(s=>`<span>${s}</span>`).join("<em>→</em>")}</div>
+    <div class="kpis">${kpi("Протяжённость",p.len)}${kpi("Мощность",p.cap)}</div>
+    <div class="sec"><p>${p.about}</p></div>
+    <div class="sec"><h3>Характеристики</h3><dl class="props">
+      ${prop("Оператор",p.operator)}${prop("Участие КМГ",p.share)}${prop("Конечная точка",p.to?link(p.to):null)}
+    </dl></div>`};
+}
+function refCard(r){
+  const feeds=PIPES.filter(p=>p.route.some(s=>s.startsWith(r.city))).map(p=>link(p.slug,p.n)).join(", ")||null;
+  return {cls:"",style:"--c:#e0b400",html:`
+    <div><div class="eyebrow"><i></i>Нефтеперерабатывающий завод</div><h2>${r.n}</h2><p class="reg">${r.city}, ${r.r} область</p></div>
+    <div class="kpis">${kpi("Мощность",r.cap)}${kpi("Доля КМГ",r.share)}</div>
+    <div class="sec"><p>${r.about}</p></div>
+    <div class="sec"><h3>Характеристики</h3><dl class="props">${prop("Связанные трубопроводы",feeds)}${coords(r)}</dl></div>`};
+}
+function portCard(p){
+  const via=BY[p.via];
+  return {cls:"",style:`--c:${p.dest?"#3aa7d9":"var(--muted)"}`,html:`
+    <div><div class="eyebrow"><i></i>${p.dest?"Точка сдачи экспорта":"Порт на Каспии"}</div><h2>${p.n}</h2><p class="reg">${p.city}</p></div>
+    <div class="sec"><p>${p.about}</p></div>
+    <div class="sec"><h3>Характеристики</h3><dl class="props">${prop("Маршрут",via?link(via.slug,via.n):null)}${coords(p)}</dl></div>`};
+}
+function openItem(id,{fly=true,push=true}={}){
+  const it=ITEMS[id]; if(!it) return;
+  state.sel=id; render();
+  const c=it.kind==="field"?fieldCard(it):it.kind==="pipe"?pipeCard(it):it.kind==="ref"?refCard(it):portCard(it);
+  card.className=`card open ${c.cls}`; card.setAttribute("style",c.style||""); card.setAttribute("aria-hidden","false");
+  body.innerHTML=c.html; body.scrollTop=0;
+  const cb=document.getElementById("copyBtn");
+  if(cb) cb.onclick=()=>{const t=`${it.lat}, ${it.lon}`, done=()=>{cb.textContent="Скопировано";setTimeout(()=>cb.textContent="Копировать",1500)};
+    const sel=()=>{const r=document.createRange();r.selectNodeContents(document.getElementById("coords"));const s=getSelection();s.removeAllRanges();s.addRange(r)};
+    try{navigator.clipboard.writeText(t).then(done,sel)}catch(_){sel()}};
+  const nav=ITEMS.filter(visible), i=nav.findIndex(x=>x.id===id);
+  document.getElementById("prev").disabled=i<=0; document.getElementById("next").disabled=i<0||i>=nav.length-1;
+  if(push&&location.hash!=="#"+it.slug){try{history.pushState(null,"","#"+it.slug)}catch(_){}}
+  if(fly) flyTo(it);
+}
+function closeItem(push=true){
+  if(state.sel==null) return;
+  state.sel=null; card.classList.remove("open"); card.setAttribute("aria-hidden","true"); render();
+  if(push&&location.hash){try{history.pushState(null,"",location.pathname+location.search)}catch(_){}}
+}
+function step(d){const nav=ITEMS.filter(visible),i=nav.findIndex(x=>x.id===state.sel);const n=nav[i+d];if(n)openItem(n.id,{fly:true})}
+document.getElementById("close").onclick=()=>closeItem();
+document.getElementById("prev").onclick=()=>step(-1);
+document.getElementById("next").onclick=()=>step(1);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeItem()});
+function fromHash(){const it=BY[decodeURIComponent(location.hash.slice(1))];it?openItem(it.id,{fly:true,push:false}):closeItem(false)}
+addEventListener("hashchange",fromHash); addEventListener("popstate",fromHash);
+
+render(); fromHash();
+</script>
+</body>
+</html>
